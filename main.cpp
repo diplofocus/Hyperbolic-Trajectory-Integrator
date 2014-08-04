@@ -9,9 +9,9 @@
 #include "bodies.h"
 
 Vect Galaxy1Pos(-3 * Rmin, -1 * Rmin, 0);
-Vect Galaxy1Vel(50000, -20000, 0);
+//Vect Galaxy1Vel(50000, -20000, 0);
 Vect Galaxy2Pos(3 * Rmin, 1 * Rmin, 0);
-Vect Galaxy2Vel(-50000, 0, 0);
+//Vect Galaxy2Vel(-50000, 0, 0);
 
 double LastSnapTime = 0;
 
@@ -53,8 +53,14 @@ int main()
       bodies[i] = new Body();
     }
 
-  CreateGalaxy(bodies, Galaxy1Mass, Galaxy1Pos, Galaxy1Vel, 1, -1, 0);
+  Galaxy1Vel = GalaxySpeed(Galaxy1Mass, Galaxy2Mass, Galaxy1Pos, Galaxy2Pos, Rmin) * -1;
+  Galaxy2Vel = GalaxySpeed(Galaxy2Mass, Galaxy1Mass, Galaxy2Pos, Galaxy1Pos, Rmin) * -1;
+
+
+
+  CreateGalaxy(bodies, Galaxy1Mass, Galaxy1Pos, Galaxy1Vel, 1, 1, 0);
   CreatePointMass(bodies, Galaxy2Mass, Galaxy2Pos, Galaxy2Vel, 121);
+  bodies[121]->parent = 1;
 
   int massiveElements = GetMassiveBodyCount(bodies);
   massiveBodies = GetMassiveBodies(bodies);
@@ -67,13 +73,23 @@ int main()
   			lastPercTime = currPerc / 100.0;
 		}
        
-      if(t > LastSnapTime+snapshot)
+   //    if(t > LastSnapTime+snapshot)
+			// {
+			// //cout << "pls" << endl;
+			// LastSnapTime = t;
+		 //  	for(int i = 0; i < elements; i++)
+		 //   	{
+		 //      	out << *bodies[i] << endl;
+		 //   	}
+			// }
+
+			if(t > LastSnapTime+snapshot)
 			{
 			//cout << "pls" << endl;
 			LastSnapTime = t;
-		  	for(int i = 0; i < elements; i++)
+		  	for(int i = 0; i < massiveElements; i++)
 		   	{
-		      	out << *bodies[i] << endl;
+		      	out << *massiveBodies[i] << endl;
 		   	}
 			}	
       

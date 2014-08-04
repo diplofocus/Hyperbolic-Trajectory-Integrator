@@ -11,6 +11,24 @@ using namespace std;
 static int GalaxyID = 0;
 
 
+Vect GalaxySpeed(double Mass1, double Mass2, Vect Pos1, Vect Pos2, double Rmin)
+{
+	Vect Dist = Pos1 - Pos2;
+	double DistInt = Dist.Int();
+
+	double V = sqrt((2*G)/(DistInt * (Mass1 + Mass2))) * Mass1;
+
+	double Vmax = sqrt((2*G)/(Rmin * (Mass1 + Mass2))) * Mass1;
+
+	double theta = asin((Rmin * Vmax)/(DistInt * V));
+
+	Vect ort = Pos1/Pos1.Int();
+	ort = ort.Rotate(theta);
+	Vect ret = ort * V;
+
+	return ret;
+}
+
 Vect OrbitalSpeed(Body* B, double angle, double Dist, double Mass  ,double direction)
 {
   double Speed = sqrt(G * (Mass + B->m) / Dist);

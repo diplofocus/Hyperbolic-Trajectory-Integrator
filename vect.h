@@ -90,5 +90,13 @@ class Vect
   {
     return sqrt(this->x * this->x + this->y * this->y + this->z * this->z);
   }
+
+  Vect Rotate(double theta)
+  {
+    Vect ret;
+    ret.x = this->x * cos(theta) - this->y * sin(theta);
+    ret.y = this->x * sin(theta) + this->y * cos(theta);
+    return ret;
+  }
 };
 #endif
