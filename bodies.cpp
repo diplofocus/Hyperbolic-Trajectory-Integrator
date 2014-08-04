@@ -18,9 +18,9 @@ Body** GetMassiveBodies(Body** B)
   for(int i = 0; i < elements; i++)
     {
       if(B[i]->IsMassive())
-	{
-	  massiveBodies[bodyCount++] = B[i];
-	}
+	     {
+        massiveBodies[bodyCount++] = B[i];
+       }
     }
 
   return massiveBodies;
@@ -33,7 +33,7 @@ int GetMassiveBodyCount(Body** B)
   for(int i = 0; i < elements; i++ )
     {
       if(B[i]->IsMassive())
-	bodyCount++;
+	     bodyCount++;
     }
 
   return bodyCount;

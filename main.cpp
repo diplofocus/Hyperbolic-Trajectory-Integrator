@@ -5,132 +5,103 @@
 #include "vect.h"
 #include "consts.h"
 #include "kepcart.h"
+#include "galaxy.h"
+#include "bodies.h"
 
-const double G =  6.67e-11;
-const double tmax = 2 * (60*60*24*365.25);
-const double dt = 0.001 * 86400;
+Vect Galaxy1Pos(-3 * Rmin, -1 * Rmin, 0);
+Vect Galaxy1Vel(50000, -20000, 0);
+Vect Galaxy2Pos(3 * Rmin, 1 * Rmin, 0);
+Vect Galaxy2Vel(-50000, 0, 0);
 
-const int elements = 2;
-const int snapshot = 50;
+double LastSnapTime = 0;
 
 ofstream out;
 ofstream enout;
+ofstream setup;
 
 double perc, currPerc, frame;
+Vect VectDist;
+double ScalDist;
 
-double cube(double a)
+inline double cube(double a)
 {
   return a*a*a;
 }
 
-double sqr(double a)
+inline double sqr(double a)
 {
   return a*a;
 }
 
-double PotEn(double x, double y)
-{
-  double dist = sqrt(x*x + y*y);
-  double rez = -G * (2e30*6e24) / dist;
-  return rez;
-}
-
-double KinEn(Vect V)
-{
-  double rez = 6e24 * (V.x*V.x + V.y*V.y)  / 2.0;
-  return rez;
-}
-
-class Body
-{
-public:
-  Vect r,r1,r2,r3,r4;
-  Vect v,v1,v2,v3,v4;
-  Vect a,a1,a2,a3,a4;
-  double m;
-  
-  Body()
-  {
-    m = 0;
-  }
-};
-
-Vect VectDist;
-double ScalDist;
-
-
 int main()
 {
-
-  int frame = snapshot;
-  double perc = 0;
+  double lastPercTime = 0;
   int currPerc = 0;
-
-  
   
   out.open("out.txt");
   enout.open("energy.txt");
+  setup.open("setup.txt");
+
+  setup << elements;
+
   Body* bodies[elements];
+  Body** massiveBodies;
+  Body *A, *B;
+
   for(int i = 0; i < elements; i++)
     {
       bodies[i] = new Body();
     }
-  
-  PhaseState* PState = new PhaseState();
-  OrbitalElements *oe = new OrbitalElements {
-    150e9, 1.1, 1e-30, 0, 0, -0.30*3.1415926};
 
-  cartesian(1.334e20, *oe, PState);
+  CreateGalaxy(bodies, Galaxy1Mass, Galaxy1Pos, Galaxy1Vel, 1, -1, 0);
+  CreatePointMass(bodies, Galaxy2Mass, Galaxy2Pos, Galaxy2Vel, 121);
 
-  cout << PState->x << ", " << PState->y << endl << PState->xd << ", " << PState->yd << endl;
-
-  bodies[0]->m = 2e30;
-  bodies[0]->v.y = -0.09;
-  bodies[1]->m = 6e24;
-  bodies[1]->r.x = PState->x;
-  bodies[1]->r.y = PState->y;
-  bodies[1]->v.x = PState->xd;
-  bodies[1]->v.y = PState->yd;
-
-  bodies[0]->v = bodies[1]->v * (-bodies[1]->m / bodies[0]->m);
-  
-  for(int t = 0; t < tmax; t += dt)
+  int massiveElements = GetMassiveBodyCount(bodies);
+  massiveBodies = GetMassiveBodies(bodies);
+ 
+  for(double t = 0; t <= tmax; t += dt)
     {
-      if(perc >= tmax / 100.0)
-	{
-	  cout.flush();
-	  currPerc++;
-	  cout << currPerc << endl;
-	  perc=0;
-	}
-      
-      
-      if((frame % snapshot) == 0)
-	{
-	  for(int i = 0; i < elements; i++)
-	    {
-	      out << bodies[i]->r.x << ", " << bodies[i]->r.y << ", " << bodies[i]->r.z  << endl;
-	      enout << (t/30780000.0) << ", " << PotEn(bodies[1]->r.x, bodies[1]->r.y) + KinEn(bodies[1]->v) << endl;
-	    }
-	}
-      
-      perc += dt;
-      frame++;
+   	if(t/tmax >= lastPercTime + 0.01)
+		{
+  			cout << ++currPerc << endl;
+  			lastPercTime = currPerc / 100.0;
+		}
+       
+      if(t > LastSnapTime+snapshot)
+			{
+			//cout << "pls" << endl;
+			LastSnapTime = t;
+		  	for(int i = 0; i < elements; i++)
+		   	{
+		      	out << *bodies[i] << endl;
+		   	}
+			}	
       
       //k1
+
       for(int i = 0; i < elements; i++)
 	{
 	  bodies[i]->r1 = bodies[i]->r;
 	  bodies[i]->v1 = bodies[i]->v;
 	}
+
       for(int i = 0; i < elements; i++)
-	for(int j = 0; j < elements; j++)
+	for(int j = 0; j < massiveElements; j++)
 	  {
-	    if(i == j)
+	    A = bodies[i];
+	    B = massiveBodies[j];
+
+	    if(A == B)
 	      continue;
-	    VectDist = bodies[i]->r1 - bodies[j]->r1;
+
+	    VectDist = A->r1 - B->r1;
 	    ScalDist = VectDist.Int();
-	    bodies[i]->a1 += VectDist * (-G * bodies[j]->m / cube(ScalDist));
+	    A->a1 += VectDist * (-G * B->m / cube(ScalDist));
+	    if(A->a1.Int() > damp)
+	      {
+		A->a1.x = 0;
+		A->a1.y = 0;
+	      }
 	  }
       //end k1
       
@@ -141,13 +112,23 @@ int main()
 	  bodies[i]->r2 = bodies[i]->r1 + bodies[i]->v1 * (dt/2.0);
 	}
       for(int i = 0; i < elements; i++)
-	for(int j = 0; j < elements; j++)
+	for(int j = 0; j < massiveElements; j++)
 	  {
-	    if(i == j)
+	    
+	    A = bodies[i];
+	    B = massiveBodies[j];
+
+	    if(A == B)
 	      continue;
-	    VectDist = bodies[i]->r2 - bodies[j]->r2;
+
+	    VectDist = A->r2 - B->r2;
 	    ScalDist = VectDist.Int();
-	    bodies[i]->a2 += VectDist * (-G * bodies[j]->m / cube(ScalDist));
+	    A->a2 += VectDist * (-G * B->m / cube(ScalDist));
+	    if(A->a.Int() > damp)
+	      {
+		A->a2.x = 0;
+		A->a2.y = 0;
+	      }
 	  }
       //end k2
       
@@ -158,13 +139,23 @@ int main()
 	  bodies[i]->r3 = bodies[i]->r1 + bodies[i]->v2 * (dt/2.0);
 	}
       for(int i = 0; i < elements; i++)
-	for(int j = 0; j < elements; j++)
+	for(int j = 0; j < massiveElements; j++)
 	  {
-	    if(i == j)
+	    A = bodies[i];
+	    B = massiveBodies[j];
+
+	    if(A == B)
 	      continue;
-	    VectDist = bodies[i]->r3 - bodies[j]->r3;
+
+
+	    VectDist = A->r3 - B->r3;
 	    ScalDist = VectDist.Int();
-	    bodies[i]->a3 += VectDist * (-G * bodies[j]->m / cube(ScalDist));
+	    A->a3 += VectDist * (-G * B->m / cube(ScalDist));
+	    if(A->a3.Int() > damp)
+	      {
+		A->a3.x = 0;
+		A->a3.y = 0;
+	      }
 	  }
       //end k3
       
@@ -176,16 +167,25 @@ int main()
 	}
 
       for(int i = 0; i < elements; i++)
-	for(int j = 0; j < elements; j++)
+	for(int j = 0; j < massiveElements; j++)
 	  {
-	    if(i == j)
+	    A = bodies[i];
+	    B = massiveBodies[j];
+
+	    if(A == B)
 	      continue;
-	    VectDist = bodies[i]->r4 - bodies[j]->r4;
+
+	    VectDist = A->r4 - B->r4;
 	    ScalDist = VectDist.Int();
-	    bodies[i]->a4 += VectDist * (-G * bodies[j]->m / cube(ScalDist));
+	    A->a4 += VectDist * (-G * B->m / cube(ScalDist));
+	    if(A->a4.Int() > damp)
+	      {
+		A->a4.x = 0;
+		A->a4.y = 0;
+	      }
 	  }
       //end k4
-            
+         
       for(int i = 0; i < elements; i++)
 	{
 	  bodies[i]->v += (bodies[i]->a1 + bodies[i]->a2*2 + bodies[i]->a3*2 + bodies[i]->a4) * dt/6.0;
@@ -209,6 +209,8 @@ int main()
     }
   out.close();
   enout.close();
+  setup.close();
+
   return 0;
 }
 
