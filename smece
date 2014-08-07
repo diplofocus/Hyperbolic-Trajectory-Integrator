@@ -1,0 +1,210 @@
+//If node has more bodies, check if desired node exists.
+//If it does, InsertToNode there, if not, create 4 subnodes,
+//then insert to desired node.
+if (NodeBodyCount > 1)
+{
+	cout << size;
+	int asd;
+	int quad = GetQuad(NewBody);
+
+	switch (quad)
+	{
+	case 1 :
+	{
+		if (ne == NULL)
+		{
+			Vect neCent;
+			neCent.x = center.x + (size / 2.0);
+			neCent.y = center.y + (size / 2.0);
+			ne = new Node(neCent, (size / 2.0));
+		}
+		ne->InsertToNode(NewBody);
+	} break;
+
+	case 2 :
+	{
+		if (se == NULL)
+		{
+			Vect seCent;
+			seCent.x = center.x - (size / 2.0);
+			seCent.y = center.y + (size / 2.0);
+			se = new Node(seCent, (size / 2.0));
+		}
+		se->InsertToNode(NewBody);
+	} break;
+
+	case 3 :
+	{
+		if (nw == NULL)
+		{
+			Vect nwCent;
+			nwCent.x = center.x + (size / 2.0);
+			nwCent.y = center.y - (size / 2.0);
+			nw = new Node(nwCent, (size / 2.0));
+		}
+		nw->InsertToNode(NewBody);
+	} break;
+
+	case 4 :
+	{
+		if (sw == NULL)
+		{
+			Vect swCent;
+			swCent.x = center.x - (size / 2.0);
+			swCent.y = center.y - (size / 2.0);
+			sw = new Node(swCent, (size / 2.0));
+		}
+		sw->InsertToNode(NewBody);
+	} break;
+	}
+
+}
+else
+{
+	//If node has one body, find it's new quadrant. If the new quadrant exists, place it there. If it doesn't,
+	//create it and place it there.
+	//Then take the new body and find it's own quadrant and check if it exists. If it does, place it there,
+	//if not, create it and place it there.
+	if (NodeBodyCount == 1)
+	{
+		int quad = GetQuad(NodeBody);
+		cout << size;
+		int asd;
+		cin >> asd;
+		switch (quad)
+		{
+		case 1 :
+		{
+			cout << "quad = 1" << endl;
+			if (ne == NULL)
+			{
+				cout << "InsertElse1 work pls" << endl;
+				Vect neCent;
+				neCent.x = center.x + (size / 2.0);
+				neCent.y = center.y + (size / 2.0);
+				ne = new Node(neCent, (size / 2.0));
+				ne->InsertToNode(NodeBody);
+			}
+			else
+			{
+				cout << "Wat" << endl;
+				ne->InsertToNode  (NodeBody);
+			}
+		} break;
+
+		case 2 :
+		{
+			cout << "quad = 2" << endl;
+			if (se == NULL)
+			{
+				Vect seCent;
+				seCent.x = center.x - (size / 2.0);
+				seCent.y = center.y + (size / 2.0);
+				se = new Node(seCent, (size / 2.0));
+				se->InsertToNode  (NodeBody);
+			}
+			else
+			{
+				se->InsertToNode  (NodeBody);
+			}
+		} break;
+
+		case 3 :
+		{
+			cout << "quad = 3" << endl;
+			if (nw == NULL)
+			{
+				Vect nwCent;
+				nwCent.x = center.x + (size / 2.0);
+				nwCent.y = center.y - (size / 2.0);
+				nw = new Node(nwCent, (size / 2.0));
+				nw->InsertToNode(NodeBody);
+			}
+			else
+			{
+				nw->InsertToNode(NodeBody);
+			}
+		} break;
+
+		case 4 :
+		{
+
+			if (sw == NULL)
+			{
+				cout << "quad = 4" << endl;
+				Vect swCent;
+				swCent.x = center.x - (size / 2.0);
+				swCent.y = center.y - (size / 2.0);
+				sw = new Node(swCent, (size / 2.0));
+				sw->InsertToNode(NodeBody);
+			}
+			else
+			{
+				cout << "Ins" << endl;
+				sw->InsertToNode(NodeBody);
+			}
+		} break;
+		}
+		quad = GetQuad(NewBody);
+		switch (quad)
+		{
+		case 1 :
+		{
+			if (ne == NULL)
+			{
+				Vect neCent;
+				neCent.x = center.x + (size / 2.0);
+				neCent.y = center.y + (size / 2.0);
+				ne = new Node(neCent, (size / 2.0));
+			}
+			ne->InsertToNode(NewBody);
+		} break;
+
+		case 2 :
+		{
+			if (se == NULL)
+			{
+				Vect seCent;
+				seCent.x = center.x - (size / 2.0);
+				seCent.y = center.y + (size / 2.0);
+				se = new Node(seCent, (size / 2.0));
+			}
+			se->InsertToNode(NewBody);
+		} break;
+
+		case 3 :
+		{
+			if (nw == NULL)
+			{
+				Vect nwCent;
+				nwCent.x = center.x + (size / 2.0);
+				nwCent.y = center.y - (size / 2.0);
+				nw = new Node(nwCent, (size / 2.0));
+			}
+			nw->InsertToNode(NewBody);
+		} break;
+
+		case 4 :
+		{
+			if (sw == NULL)
+			{
+				Vect swCent;
+				swCent.x = center.x - (size / 2.0);
+				swCent.y = center.y - (size / 2.0);
+				sw = new Node(swCent, (size / 2.0));
+			}
+			sw->InsertToNode(NewBody);
+		} break;
+		}
+	}
+	//If the node is emtpy, store the new body as the Node Body
+	else
+	{
+		cout << "Lone Body" << endl;
+		cout << size;
+		int asd;
+		cin >> asd;
+		NodeBody = NewBody;
+	}
+
+}
