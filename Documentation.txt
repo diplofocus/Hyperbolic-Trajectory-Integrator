@@ -1,0 +1,33 @@
+Documentation.
+
+Below is a list of files that compose this code and the uses of said files.
+
+main.cpp
+{
+	Contains the code necessary for running the simulation.
+	Creates galaxies, gives them velocities and integrates them.
+	It does this by invoking methods from other files.
+	Only the integration method is defined here.
+}
+
+node.h/node.cpp
+{
+	Contains the declarations and definitions used in the constructions and operation of the Barnes Hut tree code.
+	Contains functions for inserting bodies in to a node, distributing mass along the nodes, and calculating the forces that act upon a body by traversing a node.
+}
+
+galaxy.h/galaxy.cpp
+{
+	Contains the declarations and definitions used in the construction of galaxies as stable body formations.
+	Requires the user to forward a pointer to a list of bodies.
+	By default it places galaxies in parabolic trajerctories around each other, but this can easily be changed.
+	The galaxies themselves are consisted of five concentric rings and every particle has a uniform angular momentum.
+	The first particle is placed in the center and acts as a Super Massive Black Hole (SMBH), but it's mass is far greater than
+	a real SMBH because it also serves as the bulge of the galaxy.
+}
+
+bodies.h/bodies.cpp
+{
+	Contains the declarations and definitions of the particle class used throughout the simulation.
+	
+}
